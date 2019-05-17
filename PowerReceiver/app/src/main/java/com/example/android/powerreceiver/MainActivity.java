@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
     private CustomReceiver mReceiver = new CustomReceiver();
+    private static final String ACTION_CUSTOM_BROADCAST =
+            BuildConfig.APPLICATION_ID + ".ACTION_CUSTOM_BROADCAST";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,5 +29,8 @@ public class MainActivity extends AppCompatActivity {
         //Unregister the receiver
         this.unregisterReceiver(mReceiver);
         super.onDestroy();
+    }
+
+    public void sendCustomBroadcast(View view) {
     }
 }
