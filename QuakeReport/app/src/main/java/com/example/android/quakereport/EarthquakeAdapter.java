@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
+    private static final String LOCATION_SEPARATOR = " of ";
 
     public EarthquakeAdapter(Activity context, ArrayList<Earthquake> earthquakes) {
         // Here, we initialize the ArrayAdapter's internal storage for the context and the list.
@@ -37,9 +38,43 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         // Get the magnitude from the Earthquake object and set this text on the magnitude TextView
         magnitudeTextView.setText(currentReport.getMagnitude());
 
-        TextView locationTextView = listItemView.findViewById(R.id.location);
+        // Get the original location string from the Earthquake object,
+        // which can be in the format of "5km N of Cairo, Egypt" or "Pacific-Antarctic Ridge".
+        String originalLocation = currentReport.getLocation();
+
+        // If the original location string (i.e. "5km N of Cairo, Egypt") contains
+        // a primary location (Cairo, Egypt) and a location offset (5km N of that city)
+        // then store the primary location separately from the location offset in 2 Strings,
+        // so they can be displayed in 2 TextViews.
+        String primaryLocation;
+        String locationOffset;
+
+        // Check whether the originalLocation string contains the " of " text
+        if (originalLocation.contains(LOCATION_SEPARATOR)) {
+            // Split the string into different parts (as an array of Strings)
+            // based on the " of " text. We expect an array of 2 Strings, where
+            // the first String will be "5km N" and the second String will be "Cairo, Egypt".
+            String[] parts = originalLocation.split(LOCATION_SEPARATOR);
+            // Location offset should be "5km N " + " of " --> "5km N of"
+            locationOffset = parts[0] + LOCATION_SEPARATOR;
+            // Primary location should be "Cairo, Egypt"
+            primaryLocation = parts[1];
+        } else {
+            // Otherwise, there is no " of " text in the originalLocation string.
+            // Hence, set the default location offset to say "Near the".
+            locationOffset = getContext().getString(R.string.near_the);
+            // The primary location will be the full location string "Pacific-Antarctic Ridge".
+            primaryLocation = originalLocation;
+        }
+
+        TextView primaryLocationView = listItemView.findViewById(R.id.primary_location);
         // Get the location from the Earthquake object and set this text on the location TextView
-        locationTextView.setText(currentReport.getLocation());
+        primaryLocationView.setText(primaryLocation);
+
+        // Find the TextView with view ID location offset
+        TextView locationOffsetView = listItemView.findViewById(R.id.location_offset);
+        // Display the location offset of the current earthquake in that TextView
+        locationOffsetView.setText(locationOffset);
 
         TextView dateTextView = listItemView.findViewById(R.id.date);
         // Get the date from the Earthquake object and set this text on the date TextView
